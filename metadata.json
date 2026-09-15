@@ -1,0 +1,7 @@
+{
+  "name": "SSC General Awareness Bilingual Master Guide",
+  "description": "GS by Durgesh Pandey Sir - Bilingual comprehensive master study guide and lecture notes for SSC examinations with English, Hindi, and paired Bilingual views across Polity, History, Geography, Science, Economics, and Culture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
