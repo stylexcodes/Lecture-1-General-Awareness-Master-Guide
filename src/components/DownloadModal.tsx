@@ -3,6 +3,7 @@ import * as Icons from 'lucide-react';
 import { RootData, LanguageMode } from '../types';
 import { downloadOfflineHtml, openPrintableDocumentInNewTab } from '../utils/exportContent';
 import { generateAndDownloadPdf } from '../utils/pdfGenerator';
+import { generateAndDownloadPptx } from '../utils/pptxGenerator';
 import { Bi } from './Bi';
 
 interface DownloadModalProps {
@@ -27,6 +28,38 @@ export default function DownloadModal({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const handleDownloadPptx = async () => {
+    setIsProcessing(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setProgressPercent(2);
+    setProgressStatus(`Initializing ${selectedTheme === 'dark' ? 'Dark Theme' : 'Light Theme'} PPTX engine...`);
+
+    try {
+      await generateAndDownloadPptx(
+        data, 
+        selectedLang, 
+        (pct, status) => {
+          setProgressPercent(pct);
+          setProgressStatus(status);
+        },
+        { theme: selectedTheme }
+      );
+      setSuccessMsg(`Master PPTX (${selectedTheme.toUpperCase()} theme, ${selectedLang.toUpperCase()}) successfully downloaded!`);
+      setTimeout(() => {
+        setProgressPercent(0);
+        setProgressStatus('');
+      }, 5000);
+    } catch (e: any) {
+      console.error('PPTX generation failed:', e);
+      setErrorMsg(e.message || 'Failed to generate PPTX. Please try again.');
+      setProgressPercent(0);
+      setProgressStatus('');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleDownloadMasterPdf = async () => {
     setIsProcessing(true);
@@ -304,6 +337,31 @@ export default function DownloadModal({
             </div>
             <Icons.Download className="w-5 h-5 text-cyan-300 group-hover:translate-y-0.5 transition-transform flex-shrink-0" />
           </button>
+
+          {/* ACTION 1.5: EXPORT AS PPTX */}
+          <button
+            type="button"
+            id="download-pptx-button"
+            onClick={handleDownloadPptx}
+            disabled={isProcessing}
+            className="w-full flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-orange-600 via-red-600 to-orange-700 hover:from-orange-500 hover:to-red-500 disabled:opacity-50 text-white font-bold text-sm shadow-xl shadow-orange-900/50 border border-orange-400/40 transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-lg bg-white/10 group-hover:bg-white/20 transition-colors flex-shrink-0">
+                <Icons.MonitorPlay className="w-5 h-5 text-orange-200" />
+              </div>
+              <div className="text-left">
+                <div className="font-extrabold text-sm sm:text-base flex items-center gap-2">
+                  <span>Export as Presentation (.pptx)</span>
+                </div>
+                <div className="text-xs text-orange-100 font-medium">
+                  Perfect Slides Format • Photos & Watermark Preserved
+                </div>
+              </div>
+            </div>
+            <Icons.Download className="w-5 h-5 text-orange-200 group-hover:translate-y-0.5 transition-transform flex-shrink-0" />
+          </button>
+
 
           {/* ACTION 2: PRINT / SAVE AS PDF & BROWSER PRINT OPTIONS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
